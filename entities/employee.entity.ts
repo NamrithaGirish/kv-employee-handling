@@ -14,7 +14,10 @@ class Employee extends AbstractEntity {
     @Column()
     name: string;
 
-    @OneToOne(()=>Address,(address)=>address.employee)
+    @OneToOne(()=>Address,(address)=>address.employee,{
+      cascade:true,
+      onDelete:'CASCADE'
+    })
     @JoinColumn()
     address : Address
   }

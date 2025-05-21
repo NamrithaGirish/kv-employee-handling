@@ -1,13 +1,11 @@
 import {IsNotEmpty, IsNumber, IsString} from "class-validator";
 
 
-export class CreateAddressDto {
+export class UpdateAddressDto {
 
-  @IsNotEmpty()
   @IsString()
   line1: string;
 
-  @IsNotEmpty()
   @IsNumber()
   pincode: number;
 

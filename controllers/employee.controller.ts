@@ -5,6 +5,7 @@ import { EmployeeService } from "../services/employee.services";
 import { isEmailValid } from "../validators/emailValidator";
 import { CreateEmployeeDto } from "../dto/create-employee.dto";
 import { validate } from "class-validator";
+import { UpdateEmployeeDto } from "../dto/update-employee.dto";
 
 export class EmployeeController{
     constructor(private employeeService:EmployeeService, router ){
@@ -12,8 +13,9 @@ export class EmployeeController{
         router.get('/',this.getAllEmployees.bind(this));
         // router.get('/:id',this.getEmployeeById, () => {})
         router.get('/:id',this.getEmployeeById)
-        router.put('/:id',this.updateEmployeeById.bind(this));
+        router.patch('/:id',this.updateEmployeeById.bind(this));
         router.delete('/:id',this.deleteEmployeeById.bind(this));
+        router.delete('/remove/:id',this.removeEmployeeById.bind(this));
     }
     async createEmployee(req,res,next){
         try{
@@ -39,6 +41,7 @@ export class EmployeeController{
     }
     async getAllEmployees(req,res){
         const employees = await this.employeeService.getAllEmployees();
+        // const createEmployeeDto = plainToClass()
         if (!employees){
             res.status(400).send({"error":"No employees found"})
             return;
@@ -49,6 +52,12 @@ export class EmployeeController{
         try{
             const empId = Number(req.params["id"]);
             const employee = await this.employeeService.getEmployeeById(empId);
+            const createEmployeeDto = plainToInstance(CreateEmployeeDto,employee);
+            console.log(createEmployeeDto)
+            // const err = await validate(createEmployeeDto); 
+            // if (err.length>0){
+            //     throw new HttpException(400,"Invalid input");
+            // }
             if (!employee){
                 
                 throw new HttpException(404,"Employee not found")
@@ -64,19 +73,41 @@ export class EmployeeController{
         }
         
     }
-    async updateEmployeeById(req,res){
-        const empId = Number(req.params["id"]);
-        const name = req.body.name;
-        const email = req.body.email;
-        const address = req.body.address
-        await this.employeeService.updateEmployeeById(empId,email,name);
-        const employee = await this.employeeService.getEmployeeById(empId);
-        res.status(200).send(employee);
+    async updateEmployeeById(req,res,next){
+        try{
+            const empId = Number(req.params["id"]);
+            const data = req.body;
+            const updateEmployeeDto = plainToInstance(UpdateEmployeeDto,data);
+            console.log(updateEmployeeDto);
+            const err = await validate(updateEmployeeDto
+                ,{skipMissingProperties: true}
+            );
+            if (err.length>0){
+                throw new HttpException(400,"Validation failed");
+            }
+            // const name = updateEmployeeDto.name;
+            // const email = updateEmployeeDto.email;
+            // const address = updateEmployeeDto.address
+            // const age = updateEmployeeDto.age;
+            await this.employeeService.updateEmployeeById(empId,updateEmployeeDto);
+            const employee = await this.employeeService.getEmployeeById(empId);
+            res.status(200).send(employee);
+        }
+        catch(err){
+            next(err);
+        }
+       
     }
     async deleteEmployeeById(req,res){
         const empId = Number(req.params["id"]);
         const employee = await this.employeeService.getEmployeeById(empId);
         await this.employeeService.deleteEmployeeById(empId);
+        res.status(200).send(employee);
+    }
+    async removeEmployeeById(req,res){
+        const empId = Number(req.params["id"]);
+        const employee = await this.employeeService.getEmployeeById(empId);
+        await this.employeeService.removeEmployeeById(employee);
         res.status(200).send(employee);
     }
 }

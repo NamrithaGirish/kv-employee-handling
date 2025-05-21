@@ -1,22 +1,20 @@
 import { IsEmail, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CreateAddressDto } from "./create-addres.dto";
+import { UpdateAddressDto } from "./update-address.dto";
 
-export class CreateEmployeeDto {
-  @IsNotEmpty()
+export class UpdateEmployeeDto {
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
   @IsNumber()
   age: number;
 
   @ValidateNested()
-  @Type(()=>CreateAddressDto)
-  address:CreateAddressDto
+  @Type(()=>UpdateAddressDto)
+  address:UpdateAddressDto
 
 }

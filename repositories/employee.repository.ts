@@ -26,10 +26,15 @@ class EmployeeRepository{
         );
     }
     async update(empId:number, employee:Employee):Promise<void>{
+        console.log({...employee});
         await this.repository.save({empId,...employee})
     }
+
     async delete(empId:number):Promise<void>{
-        await this.repository.delete(empId);
+        await this.repository.softDelete(empId);
+    }
+    async remove(employee:Employee):Promise<Employee>{
+        return this.repository.remove(employee);
     }
 
 }
