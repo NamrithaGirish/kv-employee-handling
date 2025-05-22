@@ -2,6 +2,8 @@ import { IsEmail, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-v
 import { Type } from "class-transformer";
 import { CreateAddressDto } from "./create-addres.dto";
 import { UpdateAddressDto } from "./update-address.dto";
+import Department from "../entities/department.entity";
+import { attachEmployeeDepartmentDto } from "./attach-employee-department.dto";
 
 export class UpdateEmployeeDto {
   @IsEmail()
@@ -16,5 +18,8 @@ export class UpdateEmployeeDto {
   @ValidateNested()
   @Type(()=>UpdateAddressDto)
   address:UpdateAddressDto
+
+  @Type(()=>attachEmployeeDepartmentDto)
+  dept:attachEmployeeDepartmentDto
 
 }

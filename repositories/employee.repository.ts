@@ -11,11 +11,12 @@ class EmployeeRepository{
     async findMany():Promise<Employee[]>{
         return this.repository.find({
             relations : {
-                address : true
+                address : true,
+                dept:true
             }
         });
     }
-    async findOneByID(empId:number):Promise<Employee>{
+    async findOneByID(empId:number):Promise<Employee|null>{
         return this.repository.findOne(
             {
             where: {id: empId},
@@ -36,6 +37,16 @@ class EmployeeRepository{
     async remove(employee:Employee):Promise<Employee>{
         return this.repository.remove(employee);
     }
+    async findByEmail(email:string){
+        return this.repository.findOne(
+            {
+            where: {email: email}
+            }
+        );
+    }
+    // async findByDeptId(deptId:number){
+    //     return this.repository.findOne({where:{depart:deptId}})
+    // }
 
 }
 export default EmployeeRepository;

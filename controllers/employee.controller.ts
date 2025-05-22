@@ -6,36 +6,43 @@ import { isEmailValid } from "../validators/emailValidator";
 import { CreateEmployeeDto } from "../dto/create-employee.dto";
 import { validate } from "class-validator";
 import { UpdateEmployeeDto } from "../dto/update-employee.dto";
+import { authorizeMiddleware } from "../middleware/authorize.middleware";
+import { EmployeeRole } from "../entities/employee.entity";
+import Department from "../entities/department.entity";
 
 export class EmployeeController{
     constructor(private employeeService:EmployeeService, router ){
-        router.post('/',this.createEmployee.bind(this));
+        router.post('/', this.createEmployee.bind(this));
         router.get('/',this.getAllEmployees.bind(this));
         // router.get('/:id',this.getEmployeeById, () => {})
         router.get('/:id',this.getEmployeeById)
-        router.patch('/:id',this.updateEmployeeById.bind(this));
-        router.delete('/:id',this.deleteEmployeeById.bind(this));
-        router.delete('/remove/:id',this.removeEmployeeById.bind(this));
+        router.patch('/:id',authorizeMiddleware([EmployeeRole.HR,EmployeeRole.DEV]),this.updateEmployeeById.bind(this));
+        router.delete('/:id',authorizeMiddleware([EmployeeRole.HR]),this.deleteEmployeeById.bind(this));
+        router.delete('/remove/:id',authorizeMiddleware([EmployeeRole.HR]),this.removeEmployeeById.bind(this));
     }
     async createEmployee(req,res,next){
         try{
-        const requiredFields = ['email','name','age','address'];
-        const data = req.body
-        const createEmployeeDto = plainToInstance(CreateEmployeeDto,data);
-        const err = await validate(createEmployeeDto); 
-        if (err.length>0){
-            throw new HttpException(400,"Invalid input");
-        }
-        if (!isEmailValid(data.email)){
-            throw new HttpException(400,"Invalid email");
-        }
-        const fieldsPassed = Object.keys(data)
-        if (requiredFields.every(field=>fieldsPassed.includes(field))){
-            const employee = await this.employeeService.createEmployee(createEmployeeDto.name,createEmployeeDto.email,createEmployeeDto.age,createEmployeeDto.address);
+            const data = req.body
+            const createEmployeeDto = plainToInstance(CreateEmployeeDto,data);
+            const err = await validate(createEmployeeDto); 
+            
+            if (err.length>0){
+                console.log(err)
+                throw new HttpException(400,"Invalid input");
+            }
+            const employee = await this.employeeService.createEmployee(
+                createEmployeeDto.name,
+                createEmployeeDto.email,
+                createEmployeeDto.age,
+                createEmployeeDto.address,
+                createEmployeeDto.password,
+                createEmployeeDto.role,
+                createEmployeeDto.dept as Department
+            );
             res.status(201).send(employee);
-        }}
+        }
         catch(error){
-            console.log(error)
+            // console.log(error)
             next(error);
         }
     }
@@ -46,6 +53,7 @@ export class EmployeeController{
             res.status(400).send({"error":"No employees found"})
             return;
         }
+        console.log(req.user);
         res.status(200).send(employees);
     }
     getEmployeeById = async(req,res,next)=>{
@@ -53,22 +61,13 @@ export class EmployeeController{
             const empId = Number(req.params["id"]);
             const employee = await this.employeeService.getEmployeeById(empId);
             const createEmployeeDto = plainToInstance(CreateEmployeeDto,employee);
-            console.log(createEmployeeDto)
-            // const err = await validate(createEmployeeDto); 
-            // if (err.length>0){
-            //     throw new HttpException(400,"Invalid input");
-            // }
+            console.log(createEmployeeDto);
             if (!employee){
-                
                 throw new HttpException(404,"Employee not found")
-                
-                // res.status(400).send({"error":"No employee found"})
-                // return;
             }
             res.status(200).send(employee);
         }
         catch(error){
-            // console.log(error);
             next(error);
         }
         
