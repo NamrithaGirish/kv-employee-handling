@@ -43,14 +43,18 @@ export class EmployeeController{
             next(error);
         }
     }
-    async getAllEmployees(req:Request,res:Response){
-        const employees = await this.employeeService.getAllEmployees();
+    async getAllEmployees(req:Request,res:Response,next:NextFunction){
+        try{
+            const employees = await this.employeeService.getAllEmployees();
         if (!employees){
-            res.status(400).send({"error":"No employees found"})
-            return;
+            throw new HttpException(400,"No employees found");
         }
         this.logger.info(req.user);
         res.status(200).send(employees);
+        }catch(error){
+            next(error)
+        }
+        
     }
     getEmployeeById = async(req:Request,res:Response,next:NextFunction)=>{
         try{

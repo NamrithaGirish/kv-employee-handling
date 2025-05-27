@@ -28,9 +28,9 @@ class EmployeeRepository{
             }
         );
     }
-    async update(empId:number, employee:Employee):Promise<void>{
+    async update(empId:number, employee:Employee):Promise<Employee>{
         console.log({...employee});
-        await this.repository.save({empId,...employee})
+        return await this.repository.save({empId,...employee})
     }
 
     async delete(empId:number):Promise<void>{

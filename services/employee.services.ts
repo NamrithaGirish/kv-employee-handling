@@ -59,7 +59,7 @@ export class EmployeeService{
         }
         return employee
     }
-    async updateEmployeeById(empId:number,updateEmployeeDto:UpdateEmployeeDto):Promise<void>{
+    async updateEmployeeById(empId:number,updateEmployeeDto:UpdateEmployeeDto):Promise<Employee>{
         const employee = await this.employeeRepository.findOneByID(empId);
         if (employee){
             if (updateEmployeeDto.dept_id){
@@ -80,7 +80,7 @@ export class EmployeeService{
             employee.status = updateEmployeeDto.status || employee.status;
             employee.experience = updateEmployeeDto.experience || employee.experience;
             employee.joiningDate = updateEmployeeDto.joiningDate? new Date(updateEmployeeDto.joiningDate) : employee.joiningDate;
-            await this.employeeRepository.update(empId,employee);
+            return await this.employeeRepository.update(empId,employee);
             
             // if (updateEmployeeDto.address != null){
                 
@@ -105,7 +105,7 @@ export class EmployeeService{
             // }
             // employee.updatedAt = new Date();
             // console.log("Modified :",employee);
-            await this.employeeRepository.update(empId,employee);
+            // await this.employeeRepository.update(empId,employee);
         }
         else{
             throw new HttpException(404,"Employee not found")

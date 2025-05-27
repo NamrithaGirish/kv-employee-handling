@@ -5,6 +5,7 @@ import { when } from 'jest-when';
 import Employee from "../../entities/employee.entity";
 import HttpException from "../../exception/httpException";
 import { DepartmentService } from "../../services/department.services";
+import { UpdateEmployeeDto } from "../../dto/update-employee.dto";
 
 
 describe('EmployeeService',()=>{
@@ -34,5 +35,57 @@ describe('EmployeeService',()=>{
             const result = await employeeService.getEmployeeById(12)
             expect(result).toStrictEqual(mockEmployee);
         })
+    })
+    describe('getAllEmployees',()=>{
+        it('test for no employees',async ()=>{
+            const mockError = new HttpException(400,"No employees found")
+            when(employeeRepository.findMany).calledWith().mockReturnValue([])
+            expect(await employeeService.getAllEmployees()).toStrictEqual([])
+            
+        });
+        it('test for all employees',async ()=>{
+            const mockEmployee = {
+                id:10,
+                name:"Name"
+            } as Employee
+            const mockList:Employee[] = [mockEmployee];
+            when(employeeRepository.findMany).calledWith().mockReturnValue(mockList)
+            const result = await employeeService.getAllEmployees()
+            expect(result).toStrictEqual(mockList);
+        })
+    })
+    describe('updateEmployeeById',()=>{
+        it('test for updating employee',async ()=>{
+            const mockUpdateEmployeeDto = {
+                name:"New Name"
+            } as UpdateEmployeeDto
+            const mockEmployeeBeforeUpdate = {
+                id:10,
+                name:"Name"
+            } as Employee
+            const mockEmployeeAfterUpdate = {
+                id:10,
+                name:"New Name"
+            } as Employee
+
+            when(employeeRepository.findOneByID).calledWith(10).mockReturnValue(mockEmployeeBeforeUpdate)
+            when(employeeRepository.update).calledWith(10,mockEmployeeAfterUpdate).mockReturnValue(mockEmployeeAfterUpdate)
+            const result = await employeeService.updateEmployeeById(10,mockUpdateEmployeeDto);
+            console.log(result);
+            expect(result).toStrictEqual(mockEmployeeAfterUpdate)
+            
+        });
+        it('test for wrong emp id',async ()=>{
+            const mockUpdateEmployeeDto = {
+                name:"New Name"
+            } as UpdateEmployeeDto
+            const mockError = new HttpException(404,"Employee not found")
+            when(employeeRepository.findOneByID).calledWith(anyNumber).mockReturnValue(null)
+            // when(employeeRepository.update).calledWith(10,mockEmployeeAfterUpdate).mockReturnValue(mockEmployeeAfterUpdate)
+            // const result = await employeeService.updateEmployeeById(10,mockUpdateEmployeeDto);
+            // console.log(result);
+            expect(employeeService.updateEmployeeById(10,mockUpdateEmployeeDto)).rejects.toThrow(mockError)
+            
+        });
     })
 })
