@@ -1,9 +1,16 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator";
+import {
+  IsDate,
+  IsDateString,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 import { Type } from "class-transformer";
-import { CreateAddressDto } from "./create-addres.dto";
 import { UpdateAddressDto } from "./update-address.dto";
-import Department from "../entities/department.entity";
-import { attachEmployeeDepartmentDto } from "./attach-employee-department.dto";
+import { EmployeeRole, EmployeeStatus } from "../entities/employee.entity";
 
 export class UpdateEmployeeDto {
   @IsEmail()
@@ -16,10 +23,22 @@ export class UpdateEmployeeDto {
   age: number;
 
   @ValidateNested()
-  @Type(()=>UpdateAddressDto)
-  address:UpdateAddressDto
+  @Type(() => UpdateAddressDto)
+  address: UpdateAddressDto;
 
-  @Type(()=>attachEmployeeDepartmentDto)
-  dept:attachEmployeeDepartmentDto
+  // @Type(()=>attachEmployeeDepartmentDto)
+  @IsNumber()
+  dept_id: number;
 
+  @IsDateString()
+  joiningDate: Date;
+
+  @IsEnum(EmployeeStatus)
+  status: EmployeeStatus;
+
+  @IsNumber()
+  experience: number;
+
+  @IsEnum(EmployeeRole)
+  role: EmployeeRole;
 }

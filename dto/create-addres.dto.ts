@@ -11,5 +11,13 @@ export class CreateAddressDto {
   @IsNumber()
   pincode: number;
 
+  @IsNotEmpty()
+  @IsString()
+  line2: string;
+
+  @IsNotEmpty()
+  @IsString()
+  houseNo: string;
+
 
 }

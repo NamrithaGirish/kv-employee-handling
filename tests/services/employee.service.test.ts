@@ -4,14 +4,17 @@ import { EmployeeService } from "../../services/employee.services";
 import { when } from 'jest-when';
 import Employee from "../../entities/employee.entity";
 import HttpException from "../../exception/httpException";
+import { DepartmentService } from "../../services/department.services";
 
 
 describe('EmployeeService',()=>{
     let employeeRepository:MockProxy<EmployeeRepository>
+    let departmentService:MockProxy<DepartmentService>
     let employeeService:EmployeeService
     beforeEach(()=>{
         employeeRepository = mock<EmployeeRepository>();
-        employeeService = new EmployeeService(employeeRepository)
+        departmentService = mock<DepartmentService>();
+        employeeService = new EmployeeService(employeeRepository,departmentService)
     })
 
     describe('getEmployeeByID',()=>{

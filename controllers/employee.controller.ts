@@ -9,20 +9,25 @@ import { UpdateEmployeeDto } from "../dto/update-employee.dto";
 import { authorizeMiddleware } from "../middleware/authorize.middleware";
 import { EmployeeRole } from "../entities/employee.entity";
 import Department from "../entities/department.entity";
+import { Request, Response, NextFunction, Router } from "express";
+import { LoggerService } from "../services/logger.service";
 
 export class EmployeeController{
-    constructor(private employeeService:EmployeeService, router ){
-        router.post('/', this.createEmployee.bind(this));
+        private logger = LoggerService.getInstance(EmployeeService.name)
+    
+    constructor(private employeeService:EmployeeService, router:Router ){
+        router.post('/', authorizeMiddleware([EmployeeRole.HR]),this.createEmployee.bind(this));
         router.get('/',this.getAllEmployees.bind(this));
         // router.get('/:id',this.getEmployeeById, () => {})
         router.get('/:id',this.getEmployeeById)
         router.patch('/:id',authorizeMiddleware([EmployeeRole.HR,EmployeeRole.DEV]),this.updateEmployeeById.bind(this));
-        router.delete('/:id',authorizeMiddleware([EmployeeRole.HR]),this.deleteEmployeeById.bind(this));
-        router.delete('/remove/:id',authorizeMiddleware([EmployeeRole.HR]),this.removeEmployeeById.bind(this));
+        router.delete('/remove/:id',authorizeMiddleware([EmployeeRole.HR]),this.deleteEmployeeById.bind(this));
+        router.delete('/:id',authorizeMiddleware([EmployeeRole.HR]),this.removeEmployeeById.bind(this));
     }
-    async createEmployee(req,res,next){
+    async createEmployee(req:Request,res:Response,next:NextFunction){
         try{
             const data = req.body
+            // data.joiningDate = new Date(data.joiningDate)
             const createEmployeeDto = plainToInstance(CreateEmployeeDto,data);
             const err = await validate(createEmployeeDto); 
             
@@ -30,33 +35,24 @@ export class EmployeeController{
                 console.log(err)
                 throw new HttpException(400,"Invalid input");
             }
-            const employee = await this.employeeService.createEmployee(
-                createEmployeeDto.name,
-                createEmployeeDto.email,
-                createEmployeeDto.age,
-                createEmployeeDto.address,
-                createEmployeeDto.password,
-                createEmployeeDto.role,
-                createEmployeeDto.dept as Department
-            );
+            const employee = await this.employeeService.createEmployee(createEmployeeDto);
             res.status(201).send(employee);
         }
         catch(error){
-            // console.log(error)
+            this.logger.error(error)
             next(error);
         }
     }
-    async getAllEmployees(req,res){
+    async getAllEmployees(req:Request,res:Response){
         const employees = await this.employeeService.getAllEmployees();
-        // const createEmployeeDto = plainToClass()
         if (!employees){
             res.status(400).send({"error":"No employees found"})
             return;
         }
-        console.log(req.user);
+        this.logger.info(req.user);
         res.status(200).send(employees);
     }
-    getEmployeeById = async(req,res,next)=>{
+    getEmployeeById = async(req:Request,res:Response,next:NextFunction)=>{
         try{
             const empId = Number(req.params["id"]);
             const employee = await this.employeeService.getEmployeeById(empId);
@@ -72,22 +68,19 @@ export class EmployeeController{
         }
         
     }
-    async updateEmployeeById(req,res,next){
+    async updateEmployeeById(req:Request,res:Response,next:NextFunction){
         try{
             const empId = Number(req.params["id"]);
             const data = req.body;
             const updateEmployeeDto = plainToInstance(UpdateEmployeeDto,data);
-            console.log(updateEmployeeDto);
+            
             const err = await validate(updateEmployeeDto
                 ,{skipMissingProperties: true}
             );
+            this.logger.error(err);
             if (err.length>0){
                 throw new HttpException(400,"Validation failed");
             }
-            // const name = updateEmployeeDto.name;
-            // const email = updateEmployeeDto.email;
-            // const address = updateEmployeeDto.address
-            // const age = updateEmployeeDto.age;
             await this.employeeService.updateEmployeeById(empId,updateEmployeeDto);
             const employee = await this.employeeService.getEmployeeById(empId);
             res.status(200).send(employee);
@@ -97,16 +90,28 @@ export class EmployeeController{
         }
        
     }
-    async deleteEmployeeById(req,res){
-        const empId = Number(req.params["id"]);
-        const employee = await this.employeeService.getEmployeeById(empId);
-        await this.employeeService.deleteEmployeeById(empId);
-        res.status(200).send(employee);
+    async deleteEmployeeById(req:Request,res:Response,next:NextFunction){
+        try{
+            const empId = Number(req.params["id"]);
+            const employee = await this.employeeService.getEmployeeById(empId);
+            await this.employeeService.deleteEmployeeById(empId);
+            res.status(200).send(employee);
+        }
+        catch(error){
+            next(error)
+        }
     }
-    async removeEmployeeById(req,res){
-        const empId = Number(req.params["id"]);
-        const employee = await this.employeeService.getEmployeeById(empId);
-        await this.employeeService.removeEmployeeById(employee);
-        res.status(200).send(employee);
+    async removeEmployeeById(req:Request,res:Response,next:NextFunction){
+        try{
+            const empId = Number(req.params["id"]);
+            const employee = await this.employeeService.getEmployeeById(empId);
+            await this.employeeService.removeEmployeeById(employee);
+            res.status(200).send(employee);
+        }
+        catch(error){
+            this.logger.error(error)
+            next(error)
+        }
+        
     }
 }

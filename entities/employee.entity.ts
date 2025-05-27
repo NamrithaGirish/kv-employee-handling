@@ -2,11 +2,17 @@ import { Entity, ForeignKey, OneToOne, JoinColumn, ManyToOne, IsNull, Column} fr
 import AbstractEntity from "./abstract.entity";
 import Address from "./address.entity";
 import Department from "./department.entity";
+import { IsDate } from "class-validator";
 export enum EmployeeRole{
   UI = "UI",
   UX = "UX",
   DEV = "DEVELOPER",
   HR = "HR"
+}
+export enum EmployeeStatus{
+  ACTIVE="ACTIIVE",
+  INACTIVE="INACTIVE",
+  PROBATION="PROBATION"
 }
 @Entity()
 class Employee extends AbstractEntity {
@@ -21,10 +27,8 @@ class Employee extends AbstractEntity {
     name: string;
 
     @OneToOne(()=>Address,(address)=>address.employee,{
-      cascade:true,
-      onDelete:'CASCADE'
+      cascade:true
     })
-    @JoinColumn()
     address : Address
 
     @ManyToOne(()=>Department,(dept)=>dept.employee,{
@@ -44,6 +48,26 @@ class Employee extends AbstractEntity {
       }
     )
     role : EmployeeRole
+
+    @Column()
+    joiningDate:Date
+
+    @Column({
+      default:0
+    })
+    experience :number
+
+    @Column({
+      type:'enum',
+      enum:EmployeeStatus,
+      default:EmployeeStatus.PROBATION
+    })
+    status:EmployeeStatus
+
+    @Column({
+      unique:true
+    })
+    employeeId:string
   }
   
   export default Employee;

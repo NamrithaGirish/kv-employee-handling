@@ -20,6 +20,13 @@ export class DepartmentRepository{
             {   where:{id} }
         );
     }
+    async getAllEmployeeByDeptId(id:number):Promise<Department>{
+        return await this.repository.findOne(
+            {   where:{id},relations:{
+                employee:true
+            } }
+        );
+    }
     async getAll():Promise<Department[]>{
         return await this.repository.find();
     }

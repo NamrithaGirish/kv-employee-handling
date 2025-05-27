@@ -7,11 +7,11 @@ import { JwtPayload } from "../dto/jwt-payload";
 export const getToken = (req:Request)=>{
     const token = req.headers.authorization;
     if (!token){
-        throw new HttpException(401,"Not autorised");
+        throw new HttpException(401,"Not authorised");
     }
     const tokenSplits = token.split(' ');
     if (tokenSplits.length!=2){
-        throw new HttpException(401,"Not autorised");
+        throw new HttpException(401,"Not authorised");
 
     }
     return tokenSplits[1];
@@ -32,6 +32,7 @@ export const authMiddleware = (req:Request,res:Response,next:NextFunction)=>{
         // }
     }
     catch(error){
+        
         throw new HttpException(401,"Invalid token")
 
     }

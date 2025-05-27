@@ -19,13 +19,14 @@ server.use(express.json());
 server.use(loggerMiddleware);
 server.use(processTimeMiddleware);
 
-server.use("/employee",employeeRouter);
-server.use("/department",departmentRouter);
+// server.use("/employee",employeeRouter);
+server.use("/employee",authMiddleware,employeeRouter);
+server.use("/department",authMiddleware,departmentRouter);
 server.use("/auth", authRouter);
 server.use(errorMiddleware);
 
 server.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Hello world");
+  res.status(200).json({message:"Welcome"});
 });
 (async ()=>{
   try{
@@ -33,12 +34,13 @@ server.get("/", (req: Request, res: Response) => {
     logger.info("DB Connected")
     // console.log("connected")
   }
-  catch{
-    logger.error("Failed");
+  catch(err){
+    console.log(err)
+    logger.error(err);
     process.exit();
   }
-  server.listen(3000, () => {
-    logger.info("server listening to 3000");
+  server.listen(4000, () => {
+    logger.info("server listening to 4000");
   });
 })();
 

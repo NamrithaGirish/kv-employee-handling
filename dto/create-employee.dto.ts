@@ -1,9 +1,9 @@
-import { IsEmail, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsString, IsStrongPassword, MinLength, ValidateNested } from "class-validator";
+import { IsDate, IsDateString, IsEmail, IsEnum, isNotEmpty, IsNotEmpty, IsNumber, IsString, IsStrongPassword, MinLength, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { CreateAddressDto } from "./create-addres.dto";
-import { EmployeeRole } from "../entities/employee.entity";
+import { EmployeeRole, EmployeeStatus } from "../entities/employee.entity";
 import Department from "../entities/department.entity";
-import { attachEmployeeDepartmentDto } from "./attach-employee-department.dto";
+import { IsNull } from "typeorm";
 
 export class CreateEmployeeDto {
   @IsNotEmpty()
@@ -33,8 +33,23 @@ export class CreateEmployeeDto {
   role:EmployeeRole
 
   @IsNotEmpty()
-  @Type(()=>attachEmployeeDepartmentDto)
-  dept:attachEmployeeDepartmentDto
+  @IsNumber()
+  deptId:number
 
+  @IsString()
+  @IsNotEmpty()
+  employeeId:string
+
+  @IsNumber()
+  @IsNotEmpty()
+  experience:number
+
+  @IsDateString()
+  @IsNotEmpty()
+  joiningDate:Date
+
+  @IsEnum(EmployeeStatus)
+  @IsNotEmpty()
+  status:EmployeeStatus
 
 }

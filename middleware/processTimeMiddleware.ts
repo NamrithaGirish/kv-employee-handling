@@ -1,10 +1,12 @@
-export const processTimeMiddleware = (req, res, next) => {
-  const startTime = Date.now(); // for simplicity
+import { NextFunction } from "express";
+
+export const processTimeMiddleware = (req, res, next:NextFunction) => {
+  const startTime = Date.now(); 
   const end = res.end;
   res.end = function (chunk, encoding) {
-    const processTime = Date.now() - startTime;
-    res.setHeader("X-Process-Time", processTime);
-    end.call(res, chunk, encoding); // 'call' is not to lose the original binding of res.end to the response object
+    const totalTime = Date.now() - startTime;
+    res.setHeader("X-Process-Time", totalTime);
+    end.call(res, chunk, encoding); 
   };
   next();
 };

@@ -1,3 +1,4 @@
+import Department from "../entities/department.entity";
 import Employee from "../entities/employee.entity";
 import { DeleteResult, Repository } from "typeorm";
 
@@ -17,11 +18,12 @@ class EmployeeRepository{
         });
     }
     async findOneByID(empId:number):Promise<Employee|null>{
-        return this.repository.findOne(
+        return await this.repository.findOne(
             {
             where: {id: empId},
             relations:{
-                address : true
+                address : true,
+                dept:true
             }
             }
         );
@@ -35,7 +37,7 @@ class EmployeeRepository{
         await this.repository.softDelete(empId);
     }
     async remove(employee:Employee):Promise<Employee>{
-        return this.repository.remove(employee);
+        return this.repository.softRemove(employee);
     }
     async findByEmail(email:string){
         return this.repository.findOne(
@@ -44,9 +46,12 @@ class EmployeeRepository{
             }
         );
     }
-    // async findByDeptId(deptId:number){
-    //     return this.repository.findOne({where:{depart:deptId}})
-    // }
+    async findByDept(dept:Department){
+        return await this.repository.find({where:{dept:dept}})
+    }
+    async updateDept(empId:number,dept:Department){
+        return await this.repository.save({empId,dept:dept})
+    }
 
 }
 export default EmployeeRepository;
