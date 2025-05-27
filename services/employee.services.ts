@@ -72,6 +72,8 @@ export class EmployeeService{
             }
             if (updateEmployeeDto.address){
                 employee.address.line1 = updateEmployeeDto.address.line1 || employee.address.line1
+                employee.address.line1 = updateEmployeeDto.address.line2 || employee.address.line2
+                employee.address.line1 = updateEmployeeDto.address.houseNo || employee.address.houseNo
                 employee.address.pincode = updateEmployeeDto.address.pincode || employee.address.pincode
             }
             employee.age = updateEmployeeDto.age || employee.age;

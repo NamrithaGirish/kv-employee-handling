@@ -81,11 +81,24 @@ describe('EmployeeService',()=>{
             } as UpdateEmployeeDto
             const mockError = new HttpException(404,"Employee not found")
             when(employeeRepository.findOneByID).calledWith(anyNumber).mockReturnValue(null)
-            // when(employeeRepository.update).calledWith(10,mockEmployeeAfterUpdate).mockReturnValue(mockEmployeeAfterUpdate)
-            // const result = await employeeService.updateEmployeeById(10,mockUpdateEmployeeDto);
-            // console.log(result);
             expect(employeeService.updateEmployeeById(10,mockUpdateEmployeeDto)).rejects.toThrow(mockError)
             
         });
+        describe("deleteEmployee", () => {
+            it("should call remove if employee exists", async () => {
+            const mockEmployee = { id: 1 } as Employee;
+            when(employeeRepository.findOneByID)
+                .calledWith(1)
+                .mockResolvedValue(mockEmployee);
+            await employeeService.removeEmployeeById(mockEmployee);
+            expect(employeeRepository.remove).toHaveBeenCalledWith(mockEmployee);
+            });
+            it("should not call remove if employee does not exist", async () => {
+            when(employeeRepository.findOneByID).calledWith(99).mockResolvedValue(null);
+            await employeeService.deleteEmployeeById(99);
+            expect(employeeRepository.remove).not.toHaveBeenCalled();
+            });
+        });
+        
     })
 })
