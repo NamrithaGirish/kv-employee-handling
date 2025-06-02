@@ -1,44 +1,44 @@
 import {
-  IsDate,
-  IsDateString,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  ValidateNested,
+	IsDate,
+	IsDateString,
+	IsEmail,
+	IsEnum,
+	IsNotEmpty,
+	IsNumber,
+	IsString,
+	ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { UpdateAddressDto } from "./update-address.dto";
 import { EmployeeRole, EmployeeStatus } from "../entities/employee.entity";
 
 export class UpdateEmployeeDto {
-  @IsEmail()
-  email: string;
+	@IsEmail()
+	email: string;
 
-  @IsString()
-  name: string;
+	@IsString()
+	name: string;
 
-  @IsNumber()
-  age: number;
+	@IsNumber()
+	age: number;
 
-  @ValidateNested()
-  @Type(() => UpdateAddressDto)
-  address: UpdateAddressDto;
+	@ValidateNested()
+	@Type(() => UpdateAddressDto)
+	address: UpdateAddressDto;
 
-  // @Type(()=>attachEmployeeDepartmentDto)
-  @IsNumber()
-  dept_id: number;
+	// @Type(()=>attachEmployeeDepartmentDto)
+	@IsNumber()
+	deptId: number;
 
-  @IsDateString()
-  joiningDate: Date;
+	@IsDateString()
+	joiningDate: Date;
 
-  @IsEnum(EmployeeStatus)
-  status: EmployeeStatus;
+	@IsEnum(EmployeeStatus)
+	status: EmployeeStatus;
 
-  @IsNumber()
-  experience: number;
+	@IsNumber()
+	experience: number;
 
-  @IsEnum(EmployeeRole)
-  role: EmployeeRole;
+	@IsEnum(EmployeeRole)
+	role: EmployeeRole;
 }
