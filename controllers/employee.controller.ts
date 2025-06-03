@@ -16,13 +16,29 @@ export class EmployeeController {
 	private logger = LoggerService.getInstance(EmployeeService.name);
 
 	constructor(private employeeService: EmployeeService, router: Router) {
-		router.post("/", this.createEmployee.bind(this));
+		router.post(
+			"/",
+			authorizeMiddleware([EmployeeRole.HR]),
+			this.createEmployee.bind(this)
+		);
 		router.get("/", this.getAllEmployees.bind(this));
 		// router.get('/:id',this.getEmployeeById, () => {})
 		router.get("/:id", this.getEmployeeById);
-		router.patch("/:id", this.updateEmployeeById.bind(this));
-		router.delete("/remove/:id", this.deleteEmployeeById.bind(this));
-		router.delete("/:id", this.removeEmployeeById.bind(this));
+		router.patch(
+			"/:id",
+			authorizeMiddleware([EmployeeRole.HR, EmployeeRole.DEV]),
+			this.updateEmployeeById.bind(this)
+		);
+		router.delete(
+			"/remove/:id",
+			authorizeMiddleware([EmployeeRole.HR]),
+			this.deleteEmployeeById.bind(this)
+		);
+		router.delete(
+			"/:id",
+			authorizeMiddleware([EmployeeRole.HR]),
+			this.removeEmployeeById.bind(this)
+		);
 	}
 	async createEmployee(req: Request, res: Response, next: NextFunction) {
 		try {
