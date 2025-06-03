@@ -30,17 +30,27 @@ export class EmployeeController {
 			// data.joiningDate = new Date(data.joiningDate)
 			const createEmployeeDto = plainToInstance(CreateEmployeeDto, data);
 			const err = await validate(createEmployeeDto);
-
+			console.log("Error : ", err);
 			if (err.length > 0) {
-				console.log(err);
-				throw new HttpException(400, "Invalid input");
+				console.log("Error : ", err);
+				const errMsg = err.map((error) => {
+					// console.log(
+					// 	"validation error child : ",
+					// 	Object.values(error.constraints)
+					// );
+					return error.constraints
+						? Object.values(error.constraints).join(", ")
+						: "";
+				});
+				this.logger.error("Create error : " + JSON.stringify(errMsg));
+				throw new HttpException(400, JSON.stringify(errMsg));
 			}
 			const employee = await this.employeeService.createEmployee(
 				createEmployeeDto
 			);
 			res.status(201).send(employee);
 		} catch (error) {
-			this.logger.error(error);
+			this.logger.error("Creation :" + error);
 			next(error);
 		}
 	}
@@ -88,7 +98,13 @@ export class EmployeeController {
 			});
 			this.logger.error(err);
 			if (err.length > 0) {
-				throw new HttpException(400, "Validation failed");
+				const errMsg = err.map((error) => {
+					return error.constraints
+						? Object.values(error.constraints).join(", ")
+						: "";
+				});
+				this.logger.error("Create error : " + JSON.stringify(errMsg));
+				throw new HttpException(400, JSON.stringify(errMsg));
 			}
 			await this.employeeService.updateEmployeeById(
 				empId,
