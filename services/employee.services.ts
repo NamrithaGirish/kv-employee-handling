@@ -87,9 +87,9 @@ export class EmployeeService {
 			if (updateEmployeeDto.address) {
 				employee.address.line1 =
 					updateEmployeeDto.address.line1 || employee.address.line1;
-				employee.address.line1 =
+				employee.address.line2 =
 					updateEmployeeDto.address.line2 || employee.address.line2;
-				employee.address.line1 =
+				employee.address.houseNo =
 					updateEmployeeDto.address.houseNo ||
 					employee.address.houseNo;
 				employee.address.pincode =
@@ -99,6 +99,7 @@ export class EmployeeService {
 			employee.age = updateEmployeeDto.age || employee.age;
 			employee.name = updateEmployeeDto.name || employee.name;
 			employee.email = updateEmployeeDto.email || employee.email;
+			employee.role = updateEmployeeDto.role || employee.role;
 			employee.status = updateEmployeeDto.status || employee.status;
 			employee.experience =
 				updateEmployeeDto.experience || employee.experience;
